@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "ts_date_trunc.h"
 
+TS_FUNCTION_INFO_V1(ts_date_trunc);
+
 TSDLLEXPORT Datum
 ts_date_trunc(PG_FUNCTION_ARGS)
 {
