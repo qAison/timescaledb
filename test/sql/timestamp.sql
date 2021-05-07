@@ -599,6 +599,87 @@ FROM unnest(ARRAY[
 \set ON_ERROR_STOP 1
 
 -------------------------------------
+--- Test ts_date_trunc function --
+-------------------------------------
+
+-- not supported functionality
+\set ON_ERROR_STOP 0
+SELECT ts_date_trunc('1 hour', '2001-02-03' :: date);
+SELECT ts_date_trunc('0 days', '2001-02-03' :: date);
+SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
+SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
+SELECT ts_date_trunc('1 day', '2000-01-02' :: date, origin => '2001-01-01');
+\set ON_ERROR_STOP 1
+
+-- infinity
+SELECT ts_date_trunc('1 year', 'infinity' :: date);
+
+-- wrappers
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp);
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamptz);
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp, origin => '2021-06-01');
+
+-- N days / weeks buckets
+SELECT  d,
+        ts_date_trunc('1 day', d) as d1,
+        ts_date_trunc('2 days', d) as d2,
+        ts_date_trunc('3 days', d) as d3,
+        ts_date_trunc('1 week', d) as w1,
+        ts_date_trunc('1 week 2 days', d) as w1d2
+FROM generate_series('2020-01-01' :: date, '2020-01-12', '1 day') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N days / weeks buckets with given `origin`
+SELECT  d,
+        ts_date_trunc('1 day', d, origin => '2020-01-01') as d1,
+        ts_date_trunc('2 days', d, origin => '2020-01-01') as d2,
+        ts_date_trunc('3 days', d, origin => '2020-01-01') as d3,
+        ts_date_trunc('1 week', d, origin => '2020-01-01') as w1,
+        ts_date_trunc('1 week 2 days', d, origin => '2020-01-01') as w1d2
+FROM generate_series('2020-01-01' :: date, '2020-01-12', '1 day') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N month buckets
+SELECT  d,
+        ts_date_trunc('1 month', d) as m1,
+        ts_date_trunc('2 month', d) as m2,
+        ts_date_trunc('3 month', d) as m3,
+        ts_date_trunc('4 month', d) as m4,
+        ts_date_trunc('5 month', d) as m5
+FROM generate_series('2020-01-01' :: date, '2020-12-01', '1 month') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N month buckets with given `origin`
+SELECT  d,
+        ts_date_trunc('1 month', d, origin => '2019-05-01') as m1,
+        ts_date_trunc('2 month', d, origin => '2019-05-01') as m2,
+        ts_date_trunc('3 month', d, origin => '2019-05-01') as m3,
+        ts_date_trunc('4 month', d, origin => '2019-05-01') as m4,
+        ts_date_trunc('5 month', d, origin => '2019-05-01') as m5
+FROM generate_series('2020-01-01' :: date, '2020-12-01', '1 month') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N years / N years, M month buckets
+SELECT  d,
+        ts_date_trunc('1 year', d) as y1,
+        ts_date_trunc('1 year 6 month', d) as y1m6,
+        ts_date_trunc('2 years', d) as y2,
+        ts_date_trunc('2 years 6 month', d) as y2m6,
+        ts_date_trunc('3 years', d) as y3
+FROM generate_series('2015-01-01' :: date, '2020-12-01', '6 month') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N years / N years, M month buckets with given `origin`
+SELECT  d,
+        ts_date_trunc('1 year', d, origin => '2000-06-01') as y1,
+        ts_date_trunc('1 year 6 month', d, origin => '2000-06-01') as y1m6,
+        ts_date_trunc('2 years', d, origin => '2000-06-01') as y2,
+        ts_date_trunc('2 years 6 month', d, origin => '2000-06-01') as y2m6,
+        ts_date_trunc('3 years', d, origin => '2000-06-01') as y3
+FROM generate_series('2015-01-01' :: date, '2020-12-01', '6 month') as ts,
+     unnest(array[ts :: date]) as d;
+
+-------------------------------------
 --- Test time input functions --
 -------------------------------------
 \c :TEST_DBNAME :ROLE_SUPERUSER

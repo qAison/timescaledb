@@ -48,6 +48,7 @@ set(SOURCES
   subspace_store.c
   tablespace.c
   time_bucket.c
+  ts_date_trunc.c
   time_utils.c
   custom_type_cache.c
   trigger.c

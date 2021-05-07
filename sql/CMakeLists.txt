@@ -39,6 +39,7 @@ set(SOURCE_FILES
   ddl_triggers.sql
   bookend.sql
   time_bucket.sql
+  ts_date_trunc.sql
   version.sql
   size_utils.sql
   histogram.sql
