@@ -599,6 +599,17 @@ FROM unnest(ARRAY[
 \set ON_ERROR_STOP 1
 
 -------------------------------------
+--- Test ts_date_trunc function --
+-------------------------------------
+
+-- not supported functinality
+\set ON_ERROR_STOP 0
+SELECT ts_date_trunc('1 hour', '2001-02-03');
+SELECT ts_date_trunc('1 day', '2001-02-03');
+SELECT ts_date_trunc('1 month', '2001-02-03', origin => '2000-01-02');
+\set ON_ERROR_STOP 1
+
+-------------------------------------
 --- Test time input functions --
 -------------------------------------
 \c :TEST_DBNAME :ROLE_SUPERUSER

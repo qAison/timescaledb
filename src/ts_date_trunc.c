@@ -35,14 +35,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 			 errmsg("`origin` argument is not supported yet")));
 	}
 
-	if(interval->time != 0)
-	{
-		ereport(ERROR,
-			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-			 errmsg("only months are supported at the moment")));
-	}
-
-	if(interval->day != 0)
+	if((interval->time != 0) || (interval->day != 0))
 	{
 		ereport(ERROR,
 			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
@@ -51,8 +44,8 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 
 	// DateADT is number of days (integer) since 2000-01-01
 	// 7752 == 2021-03-23
-	printf("interval->month = %d\n", interval->month);
-	printf("date = %d\n", date); 
+	//printf("interval->month = %d\n", interval->month);
+	//printf("date = %d\n", date); 
 
 	if (DATE_NOT_FINITE(date))
 		PG_RETURN_DATEADT(date);

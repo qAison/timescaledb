@@ -75,5 +75,6 @@ WHERE oid IN (
  timescaledb_fdw_validator
  timescaledb_post_restore
  timescaledb_pre_restore
-(56 rows)
+ ts_date_trunc
+(57 rows)
 

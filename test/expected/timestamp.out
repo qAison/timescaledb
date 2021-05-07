@@ -1224,6 +1224,18 @@ FROM unnest(ARRAY[
 ERROR:  timestamp out of range
 \set ON_ERROR_STOP 1
 -------------------------------------
+--- Test ts_date_trunc function --
+-------------------------------------
+-- not supported functinality
+\set ON_ERROR_STOP 0
+SELECT ts_date_trunc('1 hour', '2001-02-03');
+ERROR:  only months are supported at the moment
+SELECT ts_date_trunc('1 day', '2001-02-03');
+ERROR:  only months are supported at the moment
+SELECT ts_date_trunc('1 month', '2001-02-03', origin => '2000-01-02');
+ERROR:  `origin` argument is not supported yet
+\set ON_ERROR_STOP 1
+-------------------------------------
 --- Test time input functions --
 -------------------------------------
 \c :TEST_DBNAME :ROLE_SUPERUSER
