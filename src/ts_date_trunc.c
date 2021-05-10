@@ -30,7 +30,8 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 		DateADT origin_date = PG_GETARG_DATUM(2);
 		j2date(origin_date + POSTGRES_EPOCH_JDATE, &origin_year, &origin_month, &origin_day);
 
-		if(origin_day != 1) {
+		if(origin_day != 1)
+		{
 			ereport(ERROR,
 				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
 			 	errmsg("Invalid `origin` day, YYYY-MM-01 expected")));
