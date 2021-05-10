@@ -22,7 +22,8 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 {
 	Interval *interval = PG_GETARG_INTERVAL_P(0);
 	DateADT date = PG_GETARG_DATEADT(1);
-	//Timestamp origin = DEFAULT_ORIGIN;
+	int year, month, day;
+	// int origin = POSTGRES_EPOCH_JDATE;
 	//Timestamp timestamp, result;
 	//int64 period = -1;
 
@@ -42,28 +43,15 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 			 errmsg("only months are supported at the moment")));
 	}
 
-	// DateADT is number of days (integer) since 2000-01-01
-	// 7752 == 2021-03-23
-	//printf("interval->month = %d\n", interval->month);
-	//printf("date = %d\n", date); 
-
 	if (DATE_NOT_FINITE(date))
 		PG_RETURN_DATEADT(date);
 
+	j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
+
 	// Do nothing yet
+	day = 1;
+
+	date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
+
 	PG_RETURN_DATEADT(date);
-
-	//period = get_interval_period_timestamp_units(interval);
-	/* check the period aligns on a date */
-	//check_period_is_daily(period);
-
-	/* convert to timestamp (NOT tz), bucket, convert back to date */
-	//timestamp = DatumGetTimestamp(DirectFunctionCall1(date_timestamp, PG_GETARG_DATUM(1)));
-
-
-	//Assert(!TIMESTAMP_NOT_FINITE(timestamp));
-
-	//TIME_BUCKET_TS(period, timestamp, result, origin);
-
-	//PG_RETURN_DATUM(DirectFunctionCall1(timestamp_date, TimestampGetDatum(result)));
 }
