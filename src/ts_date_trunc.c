@@ -23,17 +23,18 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 	Interval *interval = PG_GETARG_INTERVAL_P(0);
 	DateADT date = PG_GETARG_DATEADT(1);
 	int year, month, day;
-	// int origin = POSTGRES_EPOCH_JDATE;
-	//Timestamp timestamp, result;
-	//int64 period = -1;
+	int origin_year = 2000, origin_month = 1, origin_day = 1;
 
 	if (PG_NARGS() > 2)
 	{
-	//if (PG_NARGS() > 2)
-	//	origin = DatumGetTimestamp(DirectFunctionCall1(date_timestamp, PG_GETARG_DATUM(2)));
-		ereport(ERROR,
-			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-			 errmsg("`origin` argument is not supported yet")));
+		DateADT origin_date = PG_GETARG_DATUM(2);
+		j2date(origin_date + POSTGRES_EPOCH_JDATE, &origin_year, &origin_month, &origin_day);
+
+		if(origin_day != 1) {
+			ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+			 	errmsg("Invalid `origin` day, YYYY-MM-01 expected")));
+		}
 	}
 
 	if((interval->time != 0) || (interval->day != 0))
@@ -47,6 +48,13 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 		PG_RETURN_DATEADT(date);
 
 	j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
+
+	if((year < origin_year) || ((year == origin_year) && (month < origin_month)))
+	{
+		ereport(ERROR,
+			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+			 errmsg("`date` < `origin` not supported, choose another `origin`")));
+	}
 
 	// Do nothing yet
 	day = 1;
