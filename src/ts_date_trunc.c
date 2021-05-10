@@ -22,8 +22,9 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 {
 	Interval *interval = PG_GETARG_INTERVAL_P(0);
 	DateADT date = PG_GETARG_DATEADT(1);
-	int year, month, day;
 	int origin_year = 2000, origin_month = 1, origin_day = 1;
+	int year, month, day;
+	int delta, bucket_number;
 
 	if (PG_NARGS() > 2)
 	{
@@ -57,10 +58,12 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 			 errmsg("`date` < `origin` not supported, choose another `origin`")));
 	}
 
-	// Do nothing yet
+	delta = (year*12 + month) - (origin_year*12 + origin_month);
+	bucket_number = delta / interval->month;
+	year = origin_year + (bucket_number * interval->month)/12;
+	month = (((origin_year*12 + (origin_month-1)) + (bucket_number * interval->month)) % 12) + 1;
 	day = 1;
 
 	date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
-
 	PG_RETURN_DATEADT(date);
 }

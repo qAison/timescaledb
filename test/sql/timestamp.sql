@@ -608,6 +608,19 @@ SELECT ts_date_trunc('1 hour', '2001-02-03');
 SELECT ts_date_trunc('1 day', '2001-02-03');
 SELECT ts_date_trunc('1 month', '2001-02-03', origin => '2000-01-02');
 SELECT ts_date_trunc('1 month', '2000-01-02', origin => '2001-01-01');
+
+-- N month buckets
+SELECT  d,
+        ts_date_trunc('1 month', d) as m1,
+        ts_date_trunc('2 month', d) as m2,
+        ts_date_trunc('3 month', d) as m3,
+        ts_date_trunc('4 month', d) as m4,
+        ts_date_trunc('5 month', d) as m5
+FROM generate_series('2020-01-01' :: date, '2020-12-01', '1 month') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N month buckets with given `origin`
+-- TODO
 \set ON_ERROR_STOP 1
 
 -------------------------------------
