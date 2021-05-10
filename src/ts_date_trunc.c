@@ -4,15 +4,9 @@
  * LICENSE-APACHE for a copy of the license.
  */
 #include <postgres.h>
-#include <catalog/pg_type.h>
-#include <fmgr.h>
-#include <utils/builtins.h>
 #include <utils/date.h>
 #include <utils/datetime.h>
-#include <utils/fmgrprotos.h>
-#include <utils/timestamp.h>
 
-#include "utils.h"
 #include "ts_date_trunc.h"
 
 TS_FUNCTION_INFO_V1(ts_date_trunc);
