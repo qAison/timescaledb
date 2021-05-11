@@ -14,92 +14,94 @@ TS_FUNCTION_INFO_V1(ts_date_trunc);
 TS_FUNCTION_INFO_V1(ts_date_trunc_timestamp);
 TS_FUNCTION_INFO_V1(ts_date_trunc_timestamptz);
 
-TSDLLEXPORT Datum ts_date_trunc_timestamp(PG_FUNCTION_ARGS) {
-  DateADT result;
-  Datum interval = PG_GETARG_DATUM(0);
-  DateADT ts_date =
-      DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(1)));
+TSDLLEXPORT Datum
+ts_date_trunc_timestamp(PG_FUNCTION_ARGS)
+{
+	DateADT result;
+	Datum interval = PG_GETARG_DATUM(0);
+	DateADT ts_date = DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(1)));
 
-  if (PG_NARGS() > 2) {
-    DateADT origin = DatumGetDateADT(
-        DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(2)));
-    result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval,
-                                                 DateADTGetDatum(ts_date),
-                                                 DateADTGetDatum(origin)));
-  } else {
-    result = DatumGetDateADT(
-        DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
-  }
+	if (PG_NARGS() > 2)
+	{
+		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(2)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+	}
+	else
+	{
+		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+	}
 
-  return DirectFunctionCall1(date_timestamp, DateADTGetDatum(result));
+	return DirectFunctionCall1(date_timestamp, DateADTGetDatum(result));
 }
 
 TSDLLEXPORT Datum
-ts_date_trunc_timestamptz(PG_FUNCTION_ARGS) {
-  DateADT result;
-  Datum interval = PG_GETARG_DATUM(0);
-  DateADT ts_date = DatumGetDateADT(
-      DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(1)));
+ts_date_trunc_timestamptz(PG_FUNCTION_ARGS)
+{
+	DateADT result;
+	Datum interval = PG_GETARG_DATUM(0);
+	DateADT ts_date = DatumGetDateADT(DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(1)));
 
-  if (PG_NARGS() > 2) {
-    DateADT origin = DatumGetDateADT(
-        DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(2)));
-    result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval,
-                                                 DateADTGetDatum(ts_date),
-                                                 DateADTGetDatum(origin)));
-  } else {
-    result = DatumGetDateADT(
-        DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
-  }
+	if (PG_NARGS() > 2)
+	{
+		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(2)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+	}
+	else
+	{
+		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+	}
 
-  return DirectFunctionCall1(date_timestamptz, DateADTGetDatum(result));
+	return DirectFunctionCall1(date_timestamptz, DateADTGetDatum(result));
 }
 
-TSDLLEXPORT Datum ts_date_trunc(PG_FUNCTION_ARGS) {
-  Interval *interval = PG_GETARG_INTERVAL_P(0);
-  DateADT date = PG_GETARG_DATEADT(1);
-  int origin_year = 2000, origin_month = 1, origin_day = 1;
-  int year, month, day;
-  int delta, bucket_number;
+TSDLLEXPORT Datum
+ts_date_trunc(PG_FUNCTION_ARGS)
+{
+	Interval *interval = PG_GETARG_INTERVAL_P(0);
+	DateADT date = PG_GETARG_DATEADT(1);
+	int origin_year = 2000, origin_month = 1, origin_day = 1;
+	int year, month, day;
+	int delta, bucket_number;
 
-  if (PG_NARGS() > 2) {
-    DateADT origin_date = PG_GETARG_DATUM(2);
-    j2date(origin_date + POSTGRES_EPOCH_JDATE, &origin_year, &origin_month,
-           &origin_day);
+	if (PG_NARGS() > 2)
+	{
+		DateADT origin_date = PG_GETARG_DATUM(2);
+		j2date(origin_date + POSTGRES_EPOCH_JDATE, &origin_year, &origin_month, &origin_day);
 
-    if (origin_day != 1) {
-      ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-                      errmsg("Invalid `origin` day, YYYY-MM-01 UTC expected")));
-    }
-  }
+		if (origin_day != 1)
+		{
+			ereport(ERROR,
+					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					 errmsg("Invalid `origin` day, YYYY-MM-01 UTC expected")));
+		}
+	}
 
-  if ((interval->time != 0) || (interval->day != 0)) {
-    ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-                    errmsg("only months and years are supported")));
-  }
+	if ((interval->time != 0) || (interval->day != 0))
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+				 errmsg("only months and years are supported")));
+	}
 
-  if (DATE_NOT_FINITE(date))
-    PG_RETURN_DATEADT(date);
+	if (DATE_NOT_FINITE(date))
+		PG_RETURN_DATEADT(date);
 
-  j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
+	j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
 
-  if ((year < origin_year) ||
-      ((year == origin_year) && (month < origin_month))) {
-    ereport(
-        ERROR,
-        (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-         errmsg("`date` < `origin` not supported, choose another `origin`")));
-  }
+	if ((year < origin_year) || ((year == origin_year) && (month < origin_month)))
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+				 errmsg("`date` < `origin` not supported, choose another `origin`")));
+	}
 
-  delta = (year * 12 + month) - (origin_year * 12 + origin_month);
-  bucket_number = delta / interval->month;
-  year = origin_year + (bucket_number * interval->month) / 12;
-  month = (((origin_year * 12 + (origin_month - 1)) +
-            (bucket_number * interval->month)) %
-           12) +
-          1;
-  day = 1;
+	delta = (year * 12 + month) - (origin_year * 12 + origin_month);
+	bucket_number = delta / interval->month;
+	year = origin_year + (bucket_number * interval->month) / 12;
+	month =
+		(((origin_year * 12 + (origin_month - 1)) + (bucket_number * interval->month)) % 12) + 1;
+	day = 1;
 
-  date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
-  PG_RETURN_DATEADT(date);
+	date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
+	PG_RETURN_DATEADT(date);
 }
