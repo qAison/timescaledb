@@ -59,6 +59,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 {
 	Interval *interval = PG_GETARG_INTERVAL_P(0);
 	DateADT date = PG_GETARG_DATEADT(1);
+	DateADT origin_date = 0; // 2000-01-01
 	int origin_year = 2000, origin_month = 1, origin_day = 1;
 	int year, month, day;
 	int delta, bucket_number;
@@ -79,38 +80,55 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 
 	if (PG_NARGS() > 2)
 	{
-		DateADT origin_date = PG_GETARG_DATUM(2);
+		origin_date = PG_GETARG_DATUM(2);
 		j2date(origin_date + POSTGRES_EPOCH_JDATE, &origin_year, &origin_month, &origin_day);
-
-		if (origin_day != 1)
-		{
-			ereport(ERROR,
-					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-					 errmsg("Invalid `origin` day, YYYY-MM-01 UTC expected")));
-		}
 	}
 
-
+	if ((origin_day != 1) && (interval->month != 0))
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+				 errmsg("Invalid `origin` day, YYYY-MM-01 UTC expected")));
+	}
 
 	if (DATE_NOT_FINITE(date))
 		PG_RETURN_DATEADT(date);
 
-	j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
-
-	if ((year < origin_year) || ((year == origin_year) && (month < origin_month)))
+	if(interval->month != 0)
 	{
-		ereport(ERROR,
-				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-				 errmsg("`date` < `origin` not supported, choose another `origin`")));
+		/* Handle months and years */
+
+		j2date(date + POSTGRES_EPOCH_JDATE, &year, &month, &day);
+
+		if ((year < origin_year) || ((year == origin_year) && (month < origin_month)))
+		{
+			ereport(ERROR,
+					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					 errmsg("`date` < `origin` not supported, choose another `origin`")));
+		}
+
+		delta = (year * 12 + month) - (origin_year * 12 + origin_month);
+		bucket_number = delta / interval->month;
+		year = origin_year + (bucket_number * interval->month) / 12;
+		month =
+			(((origin_year * 12 + (origin_month - 1)) + (bucket_number * interval->month)) % 12) + 1;
+		day = 1;
+
+		date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
+	}
+	else
+	{
+		/* Handle days and weeks */
+
+		if (date < origin_date)
+		{
+			ereport(ERROR,
+					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					 errmsg("`date` < `origin` not supported, choose another `origin`")));
+		}
+
+		// TODO
 	}
 
-	delta = (year * 12 + month) - (origin_year * 12 + origin_month);
-	bucket_number = delta / interval->month;
-	year = origin_year + (bucket_number * interval->month) / 12;
-	month =
-		(((origin_year * 12 + (origin_month - 1)) + (bucket_number * interval->month)) % 12) + 1;
-	day = 1;
-
-	date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
 	PG_RETURN_DATEADT(date);
 }
