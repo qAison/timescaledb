@@ -14,7 +14,8 @@ TS_FUNCTION_INFO_V1(ts_date_trunc);
 TS_FUNCTION_INFO_V1(ts_date_trunc_timestamp);
 TS_FUNCTION_INFO_V1(ts_date_trunc_timestamptz);
 
-TSDLLEXPORT Datum ts_date_trunc_timestamp(PG_FUNCTION_ARGS) {
+TSDLLEXPORT Datum
+ts_date_trunc_timestamp(PG_FUNCTION_ARGS) {
   DateADT result;
   Datum interval = PG_GETARG_DATUM(0);
   DateADT ts_date =
@@ -55,7 +56,8 @@ ts_date_trunc_timestamptz(PG_FUNCTION_ARGS) {
   return DirectFunctionCall1(date_timestamptz, DateADTGetDatum(result));
 }
 
-TSDLLEXPORT Datum ts_date_trunc(PG_FUNCTION_ARGS) {
+TSDLLEXPORT Datum
+ts_date_trunc(PG_FUNCTION_ARGS) {
   Interval *interval = PG_GETARG_INTERVAL_P(0);
   DateADT date = PG_GETARG_DATEADT(1);
   int origin_year = 2000, origin_month = 1, origin_day = 1;
