@@ -80,7 +80,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 	{
 		ereport(ERROR,
 				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-				 errmsg("only months and years are supported")));
+				 errmsg("unsupported interval: use either days, or months and years")));
 	}
 
 	if (DATE_NOT_FINITE(date))
