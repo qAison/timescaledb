@@ -602,13 +602,20 @@ FROM unnest(ARRAY[
 --- Test ts_date_trunc function --
 -------------------------------------
 
--- not supported functinality
+-- not supported functionality
 \set ON_ERROR_STOP 0
-SELECT ts_date_trunc('1 hour', '2001-02-03');
-SELECT ts_date_trunc('1 day', '2001-02-03');
-SELECT ts_date_trunc('1 month', '2001-02-03', origin => '2000-01-02');
-SELECT ts_date_trunc('1 month', '2000-01-02', origin => '2001-01-01');
+SELECT ts_date_trunc('1 hour', '2001-02-03' :: date);
+SELECT ts_date_trunc('1 day', '2001-02-03' :: date);
+SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
+SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
 \set ON_ERROR_STOP 1
+
+-- infinity
+SELECT ts_date_trunc('1 year', 'infinity' :: date);
+
+-- wrappers
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp);
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp, origin => '2021-06-01');
 
 -- N month buckets
 SELECT  d,

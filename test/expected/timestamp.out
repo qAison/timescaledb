@@ -1228,15 +1228,21 @@ ERROR:  timestamp out of range
 -------------------------------------
 -- not supported functionality
 \set ON_ERROR_STOP 0
-SELECT ts_date_trunc('1 hour', '2001-02-03');
+SELECT ts_date_trunc('1 hour', '2001-02-03' :: date);
 ERROR:  only months and years are supported
-SELECT ts_date_trunc('1 day', '2001-02-03');
+SELECT ts_date_trunc('1 day', '2001-02-03' :: date);
 ERROR:  only months and years are supported
-SELECT ts_date_trunc('1 month', '2001-02-03', origin => '2000-01-02');
+SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
 ERROR:  Invalid `origin` day, YYYY-MM-01 expected
-SELECT ts_date_trunc('1 month', '2000-01-02', origin => '2001-01-01');
+SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
 ERROR:  `date` < `origin` not supported, choose another `origin`
 \set ON_ERROR_STOP 1
+-- infinity
+SELECT ts_date_trunc('1 year', 'infinity' :: date);
+ ts_date_trunc
+---------------
+ infinity
+(1 row)
 -- N month buckets
 SELECT  d,
         ts_date_trunc('1 month', d) as m1,

@@ -6,10 +6,33 @@
 #include <postgres.h>
 #include <utils/date.h>
 #include <utils/datetime.h>
+#include <utils/fmgrprotos.h>
 
 #include "ts_date_trunc.h"
 
 TS_FUNCTION_INFO_V1(ts_date_trunc);
+TS_FUNCTION_INFO_V1(ts_date_trunc_timestamp);
+// TS_FUNCTION_INFO_V1(ts_date_trunc_timestamptz);
+
+TSDLLEXPORT Datum
+ts_date_trunc_timestamp(PG_FUNCTION_ARGS)
+{
+	DateADT result;
+	Datum interval = PG_GETARG_DATUM(0);
+	DateADT ts_date = DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(1)));
+
+	if (PG_NARGS() > 2)
+	{
+		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(2)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+	}
+	else
+	{
+		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+	}
+
+	return DirectFunctionCall1(date_timestamp, DateADTGetDatum(result));
+}
 
 TSDLLEXPORT Datum
 ts_date_trunc(PG_FUNCTION_ARGS)
