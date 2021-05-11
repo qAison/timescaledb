@@ -24,11 +24,15 @@ ts_date_trunc_timestamp(PG_FUNCTION_ARGS)
 	if (PG_NARGS() > 2)
 	{
 		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamp_date, PG_GETARG_DATUM(2)));
-		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc,
+													 interval,
+													 DateADTGetDatum(ts_date),
+													 DateADTGetDatum(origin)));
 	}
 	else
 	{
-		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+		result =
+			DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
 	}
 
 	return DirectFunctionCall1(date_timestamp, DateADTGetDatum(result));
@@ -44,11 +48,15 @@ ts_date_trunc_timestamptz(PG_FUNCTION_ARGS)
 	if (PG_NARGS() > 2)
 	{
 		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(2)));
-		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc,
+													 interval,
+													 DateADTGetDatum(ts_date),
+													 DateADTGetDatum(origin)));
 	}
 	else
 	{
-		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+		result =
+			DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
 	}
 
 	return DirectFunctionCall1(date_timestamptz, DateADTGetDatum(result));
@@ -94,7 +102,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 	if (DATE_NOT_FINITE(date))
 		PG_RETURN_DATEADT(date);
 
-	if(interval->month != 0)
+	if (interval->month != 0)
 	{
 		/* Handle months and years */
 
@@ -111,7 +119,8 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 		bucket_number = delta / interval->month;
 		year = origin_year + (bucket_number * interval->month) / 12;
 		month =
-			(((origin_year * 12 + (origin_month - 1)) + (bucket_number * interval->month)) % 12) + 1;
+			(((origin_year * 12 + (origin_month - 1)) + (bucket_number * interval->month)) % 12) +
+			1;
 		day = 1;
 
 		date = date2j(year, month, day) - POSTGRES_EPOCH_JDATE;
