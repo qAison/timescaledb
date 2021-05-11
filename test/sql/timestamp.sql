@@ -615,6 +615,7 @@ SELECT ts_date_trunc('1 year', 'infinity' :: date);
 
 -- wrappers
 SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp);
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamptz);
 SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp, origin => '2021-06-01');
 
 -- N month buckets

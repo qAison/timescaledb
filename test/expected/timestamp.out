@@ -1233,16 +1233,36 @@ ERROR:  only months and years are supported
 SELECT ts_date_trunc('1 day', '2001-02-03' :: date);
 ERROR:  only months and years are supported
 SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
-ERROR:  Invalid `origin` day, YYYY-MM-01 expected
+ERROR:  Invalid `origin` day, YYYY-MM-01 UTC expected
 SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
 ERROR:  `date` < `origin` not supported, choose another `origin`
 \set ON_ERROR_STOP 1
 -- infinity
 SELECT ts_date_trunc('1 year', 'infinity' :: date);
- ts_date_trunc
+ ts_date_trunc 
 ---------------
  infinity
 (1 row)
+
+-- wrappers
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp);
+      ts_date_trunc       
+--------------------------
+ Fri Jan 01 00:00:00 2021
+(1 row)
+
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamptz);
+        ts_date_trunc         
+------------------------------
+ Fri Jan 01 00:00:00 2021 EST
+(1 row)
+
+SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp, origin => '2021-06-01');
+      ts_date_trunc       
+--------------------------
+ Tue Jun 01 00:00:00 2021
+(1 row)
+
 -- N month buckets
 SELECT  d,
         ts_date_trunc('1 month', d) as m1,

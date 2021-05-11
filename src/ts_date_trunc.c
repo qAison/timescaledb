@@ -12,7 +12,7 @@
 
 TS_FUNCTION_INFO_V1(ts_date_trunc);
 TS_FUNCTION_INFO_V1(ts_date_trunc_timestamp);
-// TS_FUNCTION_INFO_V1(ts_date_trunc_timestamptz);
+TS_FUNCTION_INFO_V1(ts_date_trunc_timestamptz);
 
 TSDLLEXPORT Datum
 ts_date_trunc_timestamp(PG_FUNCTION_ARGS)
@@ -35,6 +35,26 @@ ts_date_trunc_timestamp(PG_FUNCTION_ARGS)
 }
 
 TSDLLEXPORT Datum
+ts_date_trunc_timestamptz(PG_FUNCTION_ARGS)
+{
+	DateADT result;
+	Datum interval = PG_GETARG_DATUM(0);
+	DateADT ts_date = DatumGetDateADT(DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(1)));
+
+	if (PG_NARGS() > 2)
+	{
+		DateADT origin = DatumGetDateADT(DirectFunctionCall1(timestamptz_date, PG_GETARG_DATUM(2)));
+		result = DatumGetDateADT(DirectFunctionCall3(ts_date_trunc, interval, DateADTGetDatum(ts_date), DateADTGetDatum(origin)));
+	}
+	else
+	{
+		result = DatumGetDateADT(DirectFunctionCall2(ts_date_trunc, interval, DateADTGetDatum(ts_date)));
+	}
+
+	return DirectFunctionCall1(date_timestamptz, DateADTGetDatum(result));
+}
+
+TSDLLEXPORT Datum
 ts_date_trunc(PG_FUNCTION_ARGS)
 {
 	Interval *interval = PG_GETARG_INTERVAL_P(0);
@@ -52,7 +72,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 		{
 			ereport(ERROR,
 					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-					 errmsg("Invalid `origin` day, YYYY-MM-01 expected")));
+					 errmsg("Invalid `origin` day, YYYY-MM-01 UTC expected")));
 		}
 	}
 
