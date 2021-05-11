@@ -127,7 +127,9 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 					 errmsg("`date` < `origin` not supported, choose another `origin`")));
 		}
 
-		// TODO
+		delta = date - origin_date;
+		bucket_number = delta / interval->day;
+		date = bucket_number * interval->day;
 	}
 
 	PG_RETURN_DATEADT(date);

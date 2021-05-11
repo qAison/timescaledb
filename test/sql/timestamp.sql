@@ -619,6 +619,26 @@ SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp);
 SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamptz);
 SELECT ts_date_trunc('1 year', '2021-11-22' :: timestamp, origin => '2021-06-01');
 
+-- N days / weeks buckets
+SELECT  d,
+        ts_date_trunc('1 day', d) as d1,
+        ts_date_trunc('2 days', d) as d2,
+        ts_date_trunc('3 days', d) as d3,
+        ts_date_trunc('1 week', d) as w1,
+        ts_date_trunc('1 week 2 days', d) as w1d2
+FROM generate_series('2020-01-01' :: date, '2020-01-12', '1 day') as ts,
+     unnest(array[ts :: date]) as d;
+
+-- N days / weeks buckets with given `origin`
+SELECT  d,
+        ts_date_trunc('1 day', d, origin => '2020-01-01') as d1,
+        ts_date_trunc('2 days', d, origin => '2020-01-01') as d2,
+        ts_date_trunc('3 days', d, origin => '2020-01-01') as d3,
+        ts_date_trunc('1 week', d, origin => '2020-01-01') as w1,
+        ts_date_trunc('1 week 2 days', d, origin => '2020-01-01') as w1d2
+FROM generate_series('2020-01-01' :: date, '2020-01-12', '1 day') as ts,
+     unnest(array[ts :: date]) as d;
+
 -- N month buckets
 SELECT  d,
         ts_date_trunc('1 month', d) as m1,
