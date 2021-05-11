@@ -1226,7 +1226,7 @@ ERROR:  timestamp out of range
 -------------------------------------
 --- Test ts_date_trunc function --
 -------------------------------------
--- not supported functinality
+-- not supported functionality
 \set ON_ERROR_STOP 0
 SELECT ts_date_trunc('1 hour', '2001-02-03');
 ERROR:  only months and years are supported
