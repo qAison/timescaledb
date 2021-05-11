@@ -1229,7 +1229,7 @@ ERROR:  timestamp out of range
 -- not supported functionality
 \set ON_ERROR_STOP 0
 SELECT ts_date_trunc('1 hour', '2001-02-03' :: date);
-ERROR:  unsupported interval: use either days, or months and years
+ERROR:  unsupported interval: use either days and weeks, or months and years
 SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
 ERROR:  Invalid `origin` day, YYYY-MM-01 UTC expected
 SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
