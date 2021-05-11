@@ -63,6 +63,20 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 	int year, month, day;
 	int delta, bucket_number;
 
+	if ((interval->time != 0) || ((interval->month != 0) && (interval->day != 0)))
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+				 errmsg("unsupported interval: use either days and weeks, or months and years")));
+	}
+
+	if ((interval->month == 0) && (interval->day == 0))
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+				 errmsg("unsupported interval: at least one day expected")));
+	}
+
 	if (PG_NARGS() > 2)
 	{
 		DateADT origin_date = PG_GETARG_DATUM(2);
@@ -76,12 +90,7 @@ ts_date_trunc(PG_FUNCTION_ARGS)
 		}
 	}
 
-	if ((interval->time != 0) || (interval->day != 0))
-	{
-		ereport(ERROR,
-				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-				 errmsg("unsupported interval: use either days and weeks, or months and years")));
-	}
+
 
 	if (DATE_NOT_FINITE(date))
 		PG_RETURN_DATEADT(date);

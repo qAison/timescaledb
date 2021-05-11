@@ -605,6 +605,7 @@ FROM unnest(ARRAY[
 -- not supported functionality
 \set ON_ERROR_STOP 0
 SELECT ts_date_trunc('1 hour', '2001-02-03' :: date);
+SELECT ts_date_trunc('0 days', '2001-02-03' :: date);
 SELECT ts_date_trunc('1 month', '2001-02-03' :: date, origin => '2000-01-02');
 SELECT ts_date_trunc('1 month', '2000-01-02' :: date, origin => '2001-01-01');
 \set ON_ERROR_STOP 1
